@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion des informations du soldat</title>
+  <style>
+    /* Styles CSS pour la table */
+    table {
+      border-collapse: collapse;
+      width: 50%;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Informations du Soldat</h1>
+
+<button onclick="remplirInfos()" id="btnAfficher">Données du personnage</button>
+<button onclick="ajouterEquipement()" id="btnEquipement">Données de l'équipement</button>
+
+<table id="tableInfos" style="display: none;">
+  <tr>
+    <th>Nom et Prénom</th>
+    <td id="nomPrenom"></td>
+  </tr>
+  <tr>
+    <th>Escouade</th>
+    <td id="escouade"></td>
+  </tr>
+  <tr>
+    <th>Matricule</th>
+    <td id="matricule"></td>
+  </tr>
+  <tr>
+    <th>Classe du personnage</th>
+    <td id="classe"></td>
+  </tr>
+</table>
+
+<table id="tableEquipement" style="display: none;">
+<caption>Équipement du soldat</caption>
+<tr>
+  <th>Nom de l'équipement</th>
+  <th>Durabilité</th>
+  <th>Quantité</th>
+</tr>
+</table>
+
+<table id="tableEquipement" style="display: none;">
+  <caption>Équipement du soldat</caption>
+  <tr>
+    <th>Nom de l'équipement</th>
+    <th>Durabilité</th>
+    <th>Quantité</th>
+    <th>Actions</th>
+  </tr>
+</table>
+
+<button onclick="ajoutNouvelEquipement()" id="btnAjoutEquipement" style="display: none;">Ajouter un équipement</button>
+
+<script>
+  // Fonction pour gérer l'ajout des informations d'équipement
+  function ajouterEquipement() {
+    const confirmation = confirm("Cette action est irréversible. Voulez-vous ajouter des informations sur l'équipement ?");
+
+    if (confirmation) {
+      const equipementObligatoire = {
+        nom: "Terminal numérique",
+        durabilite: 100,
+        quantite: 1
+      };
+      
+      ajouterLigne(equipementObligatoire, true);
+
+      let reponse = 'o'; // Initialisation pour entrer dans la boucle
+
+      while (reponse.toLowerCase() === 'o') {
+        const nomEquipement = prompt("Entrez le nom de l'équipement :");
+        const durabilite = parseInt(prompt("Entrez la durabilité de 0 à 100 :"));
+        const quantite = parseInt(prompt("Entrez la quantité :"));
+
+        if (isNaN(durabilite) || isNaN(quantite) || durabilite < 0 || durabilite > 100) {
+          alert("Veuillez entrer une durabilité valide entre 0 et 100.");
+          continue;
+        }
+
+        const nouvelEquipement = {
+          nom: nomEquipement,
+          durabilite: durabilite,
+          quantite: quantite
+        };
+
+        ajouterLigne(nouvelEquipement, false);
+
+        reponse = prompt("Voulez-vous ajouter un nouvel équipement ? (Répondez 'o' pour oui ou 'n' pour non)");
+      }
+
+      document.getElementById('btnEquipement').style.display = 'none';
+      document.getElementById('btnAjoutEquipement').style.display = 'block';
+      document.getElementById('tableEquipement').style.display = 'table';
+    }
+  }
+
+  // Fonction pour ajouter une ligne dans le tableau d'équipement
+  function ajouterLigne(equipement, isObligatoire) {
+    const table = document.getElementById('tableEquipement');
+    const row = table.insertRow(-1);
+    const cellNom = row.insertCell(0);
+    const cellDurabilite = row.insertCell(1);
+    const cellQuantite = row.insertCell(2);
+    const cellActions = row.insertCell(3);
+
+    cellNom.textContent = equipement.nom;
+    cellDurabilite.textContent = determinerEtatDurabilite(equipement.durabilite);
+    cellQuantite.textContent = equipement.quantite;
+
+    const boutonModification = document.createElement('button');
+    boutonModification.textContent = 'Modifier';
+    boutonModification.onclick = function() {
+      modifierEquipement(row, equipement);
+    };
+    cellActions.appendChild(boutonModification);
+
+    if (isObligatoire) {
+      boutonModification.style.display = 'none';
+    }
+  }
+
+  // Fonction pour modifier les valeurs de l'équipement
+  function modifierEquipement(row, equipement) {
+    const nouveauNom = prompt("Entrez le nouveau nom de l'équipement :", equipement.nom);
+    const nouvelleDurabilite = parseInt(prompt("Entrez la nouvelle durabilité de 0 à 100 :", equipement.durabilite));
+    const nouvelleQuantite = parseInt(prompt("Entrez la nouvelle quantité :", equipement.quantite));
+
+    if (nouveauNom !== null && !isNaN(nouvelleDurabilite) && !isNaN(nouvelleQuantite) && nouvelleDurabilite >= 0 && nouvelleDurabilite <= 100) {
+      equipement.nom = nouveauNom;
+      equipement.durabilite = nouvelleDurabilite;
+      equipement.quantite = nouvelleQuantite;
+
+      row.cells[0].textContent = equipement.nom;
+      row.cells[1].textContent = determinerEtatDurabilite(equipement.durabilite);
+      row.cells[2].textContent = equipement.quantite;
+    } else {
+      alert("Veuillez entrer des valeurs valides.");
+    }
+  }
+
+  // Fonction pour déterminer l'état de la durabilité en fonction de sa valeur
+  function determinerEtatDurabilite(durabilite) {
+    if (durabilite === 0) {
+      return "Détruit";
+    } else if (durabilite <= 30) {
+      return "Très abîmé";
+    } else if (durabilite <= 50) {
+      return "Abîmé";
+    } else if (durabilite <= 70) {
+      return "Usé";
+    } else if (durabilite <= 95) {
+      return "Intact";
+    } else {
+      return "Neuf";
+    }
+  }
+
+  // Fonction pour ajouter un nouvel équipement
+  function ajoutNouvelEquipement() {
+    const nomEquipement = prompt("Entrez le nom de l'équipement :");
+    const durabilite = parseInt(prompt("Entrez la durabilité de 0 à 100 :"));
+    const quantite = parseInt(prompt("Entrez la quantité :"));
+
+    if (isNaN(durabilite) || isNaN(quantite) || durabilite < 0 || durabilite > 100) {
+      alert("Veuillez entrer une durabilité valide entre 0 et 100.");
+      return;
+    }
+
+    const nouvelEquipement = {
+      nom: nomEquipement,
+      durabilite: durabilite,
+      quantite: quantite
+    };
+
+    ajouterLigne(nouvelEquipement,
+    false);
+}
+
+// Fonction pour remplir les informations du personnage test
+function remplirInfos() {
+const nomPrenom = prompt("Entrez le nom et prénom du personnage :");
+const escouade = prompt("Entrez l'escouade :");
+const matricule = prompt("Entrez le matricule :");
+const classe = prompt("Entrez la classe du personnage :");
+document.getElementById('nomPrenom').innerText = nomPrenom;
+document.getElementById('escouade').innerText = escouade;
+document.getElementById('matricule').innerText = matricule;
+document.getElementById('classe').innerText = classe;
+
+document.getElementById('btnAfficher').style.display = 'none';
+document.getElementById('tableInfos').style.display = 'table';
+}
+</script>
+
+</body>
+</html>
